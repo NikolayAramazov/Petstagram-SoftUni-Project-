@@ -1,0 +1,44 @@
+{% extends 'common/home-page.html' %}
+{% load static %}
+
+{% block content %}
+<div class="edit-delete edit-photo">
+    <h2>Edit photo</h2>
+
+    <!-- Starts Edit Photo Form -->
+    <form action="">
+
+        <p>
+            <label for="{{ form.description.id_for_label }}">Description:</label>
+            {{ form.description }}
+        </p>
+
+        <p>
+            <label for="{{ form.location.id_for_label }}">Location:</label>
+            {{ form.location }}
+        </p>
+
+        <p>
+            <label for="{{ form.tagged_pet.id_for_label }}">Tag Pets:</label>
+            {{ form.tagged_pet }}
+        </p>
+
+        <!-- Edit Photo Button -->
+        <button class="edit-btn" type="submit">Edit Photo</button>
+    </form>
+    <!-- End Edit Photo Form -->
+
+</div>
+<!-- End Edit Photo Section -->
+
+</main>
+<!-- End Main Section -->
+
+<!-- Start Footer Section -->
+<div class="footer">
+		<span class="footer-section">
+			© 2024 SOFTUNI WORKSHOP FOR PYTHON WEB MODULE
+		</span>
+</div>
+<!-- End Footer Section -->
+{% endblock %}

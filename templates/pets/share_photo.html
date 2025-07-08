@@ -1,0 +1,5 @@
+<form id="shareForm" method="post" action="{% url 'photos:share_photo' pk=photo.pk %}">
+    {% csrf_token %}
+    {{ share_form.recipient }}
+    <button type="submit">Share</button>
+</form>

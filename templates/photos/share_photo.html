@@ -1,0 +1,136 @@
+{% extends 'common/home-page.html' %}
+{% load static %}
+
+{% block title %}Share Photo{% endblock %}
+
+{% block content %}
+
+<style>
+/* Scoped container */
+.share-photo-container {
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 10px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    width: 600px;
+    margin: 80px auto;
+    height: 500px;
+}
+
+/* Heading */
+.share-photo-container h2 {
+  font-weight: 600;
+  margin-bottom: 25px;
+  text-align: center;
+  color: #222;
+}
+
+/* Image */
+.share-photo-container img {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto 20px auto;
+}
+
+/* Form Group */
+.share-photo-container .form-group {
+  margin-bottom: 20px;
+}
+
+/* Label */
+.share-photo-container label {
+  font-weight: 600;
+  font-size: 1rem;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* Select field */
+.share-photo-container select {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  background-color: #fafafa;
+  transition: border-color 0.3s ease;
+    height: 40px;
+}
+
+.share-photo-container select:focus {
+  outline: none;
+  border-color: #007BFF;
+  background-color: #fff;
+}
+
+/* Button */
+.share-photo-container button[type="submit"] {
+  width: 100%;
+  background-color: #007BFF;
+  color: white;
+  font-weight: 600;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.share-photo-container button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+/* Messages list */
+.share-photo-container ul {
+  margin-top: 20px;
+  padding-left: 20px;
+  color: #d9534f; /* red-ish for errors */
+  font-weight: 600;
+}
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+  .share-photo-container {
+    padding: 15px 20px;
+  }
+
+  .share-photo-container button[type="submit"] {
+    font-size: 1rem;
+    padding: 10px;
+  }
+}
+</style>
+
+<div class="share-photo-container">
+
+  <h2>Share Photo</h2>
+
+  <img src="{{ photo.photo.url }}" alt="Photo to share">
+
+  <form method="post" action="">
+    {% csrf_token %}
+    {{ form.photo_id }}  {# hidden input #}
+    <div class="form-group">
+      <label for="{{ form.recipient.id_for_label }}">Share with:</label>
+      {{ form.recipient }}
+    </div>
+
+    <button type="submit">Send</button>
+  </form>
+
+  {% if messages %}
+    <ul>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+</div>
+
+{% endblock %}

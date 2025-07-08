@@ -1,0 +1,89 @@
+{% extends 'common/home-page.html' %}
+{% load static %}
+
+{% block content %}
+
+    <style>
+  .edit-delete {
+    width: 100%;
+    max-width: 500px;
+    margin-left: 750px;
+  }
+
+  input#id_profile_img {
+    background: inherit;
+    border: none;
+}
+
+.img_button {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.img_button input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+}
+
+.img_button::before {
+    content: 'Upload Image';
+    display: inline-block;
+    background: #000;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.img_button:hover::before {
+    background: #3f423f;
+}
+
+.edit-photo label {
+    width: 130px;
+}
+</style>
+
+
+
+<div class="edit-delete edit-photo">
+    <h2>Edit Pet</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <p>
+            <label for="{{ form.name.id_for_label }}">Pet name: </label>
+            {{ form.name }}
+        </p>
+
+        <p>
+            <label for="{{ form.date_of_birth.id_for_label }}">Date of birth: </label>
+            {{ form.date_of_birth }}
+        </p>
+
+        <p>
+            <label for="{{ form.pet_img.id_for_label }}">Pet Pic:</label>
+            <label class="img_button">
+                {{ form.pet_img }}
+            </label>
+        </p>
+        <!-- Edit Pet Button -->
+        <button class="edit-btn" type="submit">Edit</button>
+    </form>
+    <!-- End Edit Pet Form -->
+
+</div>
+    <!-- End Edit Pet Section -->
+<!-- End Main Section -->
+
+<!-- Start Footer Section -->
+<div class="footer">
+		<span class="footer-section">
+			© 2024 SOFTUNI WORKSHOP FOR PYTHON WEB MODULE
+		</span>
+</div>
+{% endblock %}

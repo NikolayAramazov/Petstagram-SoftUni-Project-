@@ -1,0 +1,89 @@
+{% extends 'common/home-page.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  input#id_profile_img {
+    background: inherit;
+    border: none;
+}
+  .img_button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.img_button::-webkit-file-upload-button {
+  visibility: hidden;
+}
+
+.img_button::before {
+  content: 'Upload Image';
+  display: inline-block;
+  background: #000000;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.img_button:hover::before {
+  background: #3f423f;
+}
+
+</style>
+
+<div class="edit-delete">
+<h2>Edit Profile</h2>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <div class="label-input">
+    <label for="{{ form.first_name.id_for_label }}">First name:</label>
+    {{ form.first_name }}
+  </div>
+  <br>
+
+  <div class="label-input">
+    <label for="{{ form.last_name.id_for_label }}">Last name:</label>
+    {{ form.last_name }}
+  </div>
+  <br>
+
+  <div class="label-input">
+    <label for="{{ form.username.id_for_label }}">Username:</label>
+    {{ form.username }}
+  </div>
+  <br>
+
+  <div class="label-input">
+    <label for="{{ form.email.id_for_label }}">Email:</label>
+    {{ form.email }}
+  </div>
+  <br>
+
+  <div class="label-input">
+    <label for="{{ form.gender.id_for_label }}">Gender:</label>
+    {{ form.gender }}
+  </div>
+  <br>
+
+  <div class="label-input">
+    <label for="{{ form.profile_img.id_for_label }}">Profile Pic:</label>
+    {{ form.profile_img }}
+  </div>
+  <br>
+
+  <button class="edit-btn" type="submit">Edit</button>
+</form>
+</div>
+</main>
+<!-- Footer -->
+<div class="footer">
+  <span class="footer-section">
+    © 2024 SOFTUNI WORKSHOP FOR PYTHON WEB MODULE
+  </span>
+</div>
+{% endblock %}

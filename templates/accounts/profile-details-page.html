@@ -1,0 +1,115 @@
+{% extends 'common/home-page.html' %}
+{% load static %}
+
+{% block title %}Profile - {{ profile.user.username }}{% endblock %}
+
+{% block content %}
+
+    <style>
+        .follow_button{
+            width: 100px;
+            height: 40px;
+            border-radius: 20px;
+            color: #ffff;
+            background: #0195f6;
+            border: 1px solid;
+        }
+
+        .unfollow_button{
+            width: 100px;
+            height: 40px;
+            border-radius: 20px;
+            color: #0195f6;
+            background: #ffff;
+            border: 1px solid;
+        }
+    </style>
+
+<div class="profile">
+  <div class="profile-data">
+    <div class="profile_img">
+      <div class="image">
+        {% if profile.profile_img.name == "profile_images/user.png" or not profile.profile_img %}
+          <img src="/media/profile_images/user.png" alt="default profile image">
+        {% else %}
+          <img src="{{ profile.profile_img.url }}" alt="{{ profile.user.username }}">
+        {% endif %}
+      </div>
+
+    </div>
+
+    <div class="personal">
+      <div class="edit">
+        <p>{{ profile.user.username }}</p>
+        {% if user.profile != profile %}
+            {% if profile in user.profile.following.all %}
+                <form action="{% url 'accounts:unfollow_user' profile.user.username %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="unfollow_button">Unfollow</button>
+                </form>
+            {% else %}
+                <form action="{% url 'accounts:follow_user' profile.user.username %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="follow_button">Follow</button>
+                </form>
+            {% endif %}
+        {% endif %}
+        {% if request.user == profile.user %}
+          <a href="{% url 'accounts:profile_edit' pk=profile.pk %}">
+            <img class="edit-img" src="{% static 'images/edit-pen-icon-6.jpg' %}" alt="edit button" />
+          </a>
+          <a href="{% url 'accounts:profile_delete' pk=profile.pk %}">
+            <img class="bin-img" src="{% static 'images/icon-remove-22.jpg' %}" alt="delete button" />
+          </a>
+        {% endif %}
+      </div>
+
+        <div class="data">
+            <p>photos</p><span>{{ profile.user.photos.count }}</span>
+            <p>pets</p><span>{{ profile.user.pets.count }}</span>
+        </div>
+
+        {% if request.user != profile.user %}
+            <a href="{% url 'accounts:chat' profile.user.username %}">
+                <i class="fa-solid fa-message"></i>
+            </a>
+        {% endif %}
+
+      <h3 class="names">{{ profile.first_name }} {{ profile.last_name }}</h3>
+      <p class="email">{{ profile.user.email }}</p>
+      <p class="gender">{{ profile.gender }}</p>
+    </div>
+  </div>
+
+  <div class="pets">
+    <div class="statuses">
+      {% for pet in profile.user.pets.all %}
+        <a href="{% url 'pets:pet_details' pk=pet.pk %}">
+          <div class="head-pet">
+            <div class="status">
+              <div class="image">
+                <img src="{{ pet.pet_img.url }}" alt="{{ pet.name }}">
+              </div>
+            </div>
+            <p>{{ pet.name }}</p>
+          </div>
+        </a>
+      {% empty %}
+        <p>No pets found.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+    <div class="pet-photos">
+      {% if profile.user.photos %}
+        {% for photo in profile.user.photos.all %}
+          <a href="{% url 'photos:photo_details' pk=photo.pk %}">
+            <img src="{{ photo.photo.url }}" alt="photo" />
+          </a>
+        {% endfor %}
+      {% else %}
+        <img class="no-posts" src="{% static 'images/no_posts.png' %}" alt="no posts" />
+      {% endif %}
+    </div>
+</div>
+{% endblock %}

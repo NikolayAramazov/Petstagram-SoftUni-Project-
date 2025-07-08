@@ -1,0 +1,109 @@
+{% extends 'common/home-page.html' %}
+{% load static %}
+
+{% block title %}Pet - {{ pet.name }}{% endblock %}
+
+{% block content %}
+<div class="pet-profile">
+    <div class="profile">
+        <div class="profile-data">
+            <div class="profile_img">
+                <div class="image">
+                    <img src="{{ pet.pet_img.url }}" alt="{{ pet.name }}">
+                </div>
+            </div>
+            <div class="personal">
+                <div class="edit">
+                    <p>{{ pet.name }}</p>
+                    <a href="{% url 'pets:pet_edit' pk=pet.pk %}">
+                        <img class="edit-img" src="{% static 'images/edit-pen-icon-6.jpg' %}" alt="edit">
+                    </a>
+                    <a href="{% url 'pets:pet_delete' pk=pet.pk %}">
+                        <img class="bin-img" src="{% static 'images/icon-remove-22.jpg' %}" alt="delete">
+                    </a>
+                </div>
+                <div class="data">
+                    <span>{{ photos|length }}</span>
+                    <p>photos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pet Photos Section -->
+    {% if photos %}
+        {% for photo in photos %}
+        <div class="pet-posts">
+            <div class="card">
+                <div class="top">
+                    <div class="userDetails">
+                        <a href="{% url 'accounts:profile_details' pk=photo.owner.profile.pk %}">
+                            <div class="profilepic">
+                                <div class="profile_img">
+                                    <div class="image">
+                                        <img src="{{ photo.owner.profile.profile_img.url }}" alt="{{ photo.owner.username }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <h3>
+                            <a href="{% url 'accounts:profile_details' pk=photo.owner.profile.pk %}">
+                                {{ photo.owner.get_full_name|default:photo.owner.username }}
+                            </a>
+                            <br>
+                            {% if photo.location %}
+                                <span>{{ photo.location }}</span>
+                            {% endif %}
+                        </h3>
+                    </div>
+                </div>
+
+                <div class="imgBx" id="photo-{{ photo.pk }}">
+                    <img src="{{ photo.photo.url }}" alt="post" class="cover">
+                </div>
+
+                <div class="bottom">
+                    {% for tagged in photo.tagged_pet.all %}
+                        <a href="{% url 'pets:pet_details' pk=tagged.pk %}">
+                            <p class="message"><b>{{ tagged.name }}</b></p>
+                        </a>
+                    {% endfor %}
+
+                    <p class="pet-details">{{ photo.description }}</p>
+                    <h5 class="postTime">{{ photo.created_at|date:"d/m/Y" }}</h5>
+
+                    <div class="comments">
+                      {% for comment in photo.comments.all %}
+                        <div class="top">
+                          <div class="userDetails">
+                            <div class="comment-data">
+                              <div class="profilepic">
+                                <div class="profile_img">
+                                  <div class="image">
+                                    <img src="{{ comment.author.profile.profile_img.url }}" alt="{{ comment.author.username }}">
+                                  </div>
+                                </div>
+                              </div>
+                              <p>
+                                <a href="{% url 'accounts:profile_details' pk=comment.author.profile.pk %}">
+                                  {{ comment.author.get_full_name|default:comment.author.username }}
+                                </a>
+                                - {{ comment.content }}
+                              </p>
+                            </div>
+                            <span>{{ comment.created_at|date:"M. d, Y, H:i" }}</span>
+                          </div>
+                        </div>
+                      {% empty %}
+                        <p>No comments yet.</p>
+                      {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <img class="no-posts" src="{% static 'images/no_posts.png' %}" alt="no posts image">
+    {% endif %}
+</div>
+{% endblock %}

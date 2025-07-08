@@ -1,0 +1,163 @@
+<!-- templates/accounts/chat.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Chat with {{ other_user.username }}</title>
+    <style>
+        body {
+            font-family: -apple-system, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu,
+            Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+            max-width: 600px;
+            margin: 30px auto;
+            border: 2px solid black;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 400px;
+            overflow-y: scroll;
+        }
+
+        .message {
+            margin-bottom: 15px;
+        }
+
+        .message.sent {
+            text-align: right;
+        }
+
+        .message .content {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 15px;
+            max-width: 70%;
+        }
+
+        .message.sent .content {
+            background-color: #dcf8c6;
+        }
+
+        .message.received .content {
+            background-color: #f1f0f0;
+        }
+
+        .timestamp {
+            font-size: 0.75em;
+            color: #666;
+        }
+
+        form {
+            margin-top: 15px;
+        }
+
+        textarea#id_content {
+            width: 80%;
+            height: 30px;
+            resize: none;
+            font-size: 14px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 8px;
+            align-content: center;
+        }
+
+        button {
+            height: 45px;
+            padding: 0 15px;
+            font-size: 14px;
+            border-radius: 10px;
+            border: none;
+            background-color: #0195f6;
+            color: white;
+            cursor: pointer;
+        }
+
+        img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50px;
+        }
+
+        h2 {
+        display: flex;
+        gap: 270px;
+        align-items: center;
+    }
+
+        textarea#id_content {
+        width: 80%;
+        height: 30px;
+        resize: none;
+        border: 2px solid #ccc;
+        border-radius: 10px;
+        padding: 8px;
+        align-content: center;
+        font-size: 20px;
+    }
+    </style>
+</head>
+<body>
+    <h2 class="chat-box-header">
+
+    <a href="javascript:window.location.replace(document.referrer);"
+       style="text-decoration:none; display:inline-block; margin-bottom:10px;">
+       ← Back
+    </a>
+    <div class="chat-header-wrapper">
+      Chat with {{ other_user.username }}
+      <div class="profile_img" style="display: inline-block; vertical-align: middle; margin-left: 10px;">
+        <div class="image" style="display: inline-block;">
+          {% if other_user.profile.profile_img.name == "profile_images/user.png" or not other_user.profile.profile_img %}
+            <img src="/media/profile_images/user.png" alt="Default profile image" width="40" height="40" style="border-radius: 50%;" />
+          {% else %}
+            <img src="{{ other_user.profile.profile_img.url }}" alt="{{ other_user.username }}'s profile image" width="40" height="40" style="border-radius: 50%;" />
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    </h2>
+
+
+    <div class="chat-box" id="chat-box">
+        {% for message in messages %}
+            <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
+                <div class="content">
+                    {% if message.content %}
+                        <p>{{ message.content|linebreaksbr }}</p>
+                    {% endif %}
+
+                    {% if message.photo %}
+                        <div style="margin-top: 10px;">
+                            <a href="{% url "photos:photo_details" pk=message.photo.id %}">
+                                <img src="{{ message.photo.photo.url }}" alt="Shared photo" style="width: 150px;height: 100px; border-radius: 10px;"/>
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <div class="timestamp">{{ message.timestamp|date:"M d, Y H:i" }}</div>
+                </div>
+            </div>
+        {% empty %}
+            <p>No messages yet.</p>
+        {% endfor %}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: flex; align-items: center; gap: 10px;">
+            {{ form.content }}
+            <button type="submit">Send</button>
+        </div>
+    </form>
+
+    <script>
+        // Scroll chat box to bottom on page load
+        const chatBox = document.getElementById('chat-box');
+        chatBox.scrollTop = chatBox.scrollHeight;
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+{% extends 'common/home-page.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+img.pet_img_delete {
+    width: 200px;
+    border-radius: 100px;
+    border: red 2px solid;
+    margin-left: 100px;
+}
+
+</style>
+<div class="edit-delete edit-photo">
+    <h2>Delete pet</h2>
+    <!-- Starts Delete Pet Form -->
+    <form method="post" action="{% url 'pets:pet_delete' pk=pet.pk %}">
+        {% csrf_token %}
+
+        <p>
+            <label for="{{ form.pet.name.id_for_label }}">Pet name: </label>
+            <input type="text" placeholder="Name" value="{{ pet.name }}" disabled>
+        </p>
+
+        <p>
+            <label for="{{ form.pet.date_of_birth.id_for_label }}">Date of birth: </label>
+            <input type="date" value="{{ pet.date_of_birth|date:'Y-m-d' }}" disabled>
+        </p>
+
+        <label for="{{ form.pet_img.id_for_label }}">Pet image: </label>
+        <div>
+            <img class="pet_img_delete"
+                 src="{{ pet.pet_img.url }}"
+                 alt="{{ pet.name }}">
+        </div>
+        <!-- Delete Pet Button -->
+
+        <button class="delete-btn" type="submit">Delete</button>
+        <!-- Go Back Button -->
+        <a class="btn btn-primary" href="javascript:history.back()">
+            <button class="edit-btn" type="button">Go back</button>
+        </a>
+    </form>
+    <!-- End Delete Pet Form -->
+</div>
+    <!-- End Delete Pet Section -->
+</main>
+<!-- End Main Section -->
+
+<!-- Start Footer Section -->
+<div class="footer">
+		<span class="footer-section">
+			© 2024 SOFTUNI WORKSHOP FOR PYTHON WEB MODULE
+		</span>
+</div>
+{% endblock %}

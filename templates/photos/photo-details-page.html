@@ -1,0 +1,139 @@
+{% extends 'common/home-page.html' %}
+{% load static %}
+
+{% block title %}Photo by {{ photo.owner.username }}{% endblock %}
+
+{% block content %}
+
+    <style>
+    textarea#id_content {
+        font-size: 20px;
+        height: 50px;
+    }
+
+    img.cover {
+    padding: 20px;
+    }
+    </style>
+<div class="container">
+  <div class="col-9">
+    <div class="card">
+      <div class="top">
+        <!-- User Details -->
+        <div class="userDetails">
+          <a href="{% url 'accounts:profile_details' pk=photo.owner.profile.pk %}">
+            <div class="profilepic">
+              <div class="profile_img">
+                <div class="image">
+                  <img src="{{ photo.owner.profile.profile_img.url }}" alt="{{ photo.owner.username }}">
+                </div>
+              </div>
+            </div>
+          </a>
+          <h3>
+            <a href="{% url 'accounts:profile_details' pk=photo.owner.profile.pk %}">
+              {{ photo.owner.get_full_name|default:photo.owner.username }}
+            </a>
+            {% if photo.location %}
+              <br><span>{{ photo.location }}</span>
+            {% endif %}
+            {% if request.user == photo.owner %}
+              <div class="edit-delete-btns">
+                <a href="{% url 'photos:edit_photo' pk=photo.pk %}">
+                  <img class="edit-img" src="{% static 'images/edit-pen-icon-6.jpg' %}" alt="edit">
+                </a>
+                <a href="{% url 'photos:delete_photo' pk=photo.pk %}">
+                  <img class="bin-img" src="{% static 'images/icon-remove-22.jpg' %}" alt="delete">
+                </a>
+              </div>
+            {% endif %}
+          </h3>
+        </div>
+      </div>
+
+      <!-- Pet Photo -->
+      <div class="imgBx" id="photo-{{ photo.id }}">
+        <img src="{{ photo.photo.url }}" alt="post" class="cover">
+      </div>
+
+      <div class="bottom">
+        <!-- Like/Share icons -->
+        <div class="actionBtns">
+          <div class="left">
+            <form method="post" action="{% url 'photos:like_toggle' pk=photo.pk %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" style="background:none; border:none; cursor:pointer;">
+                {% if liked_by_user %}
+                  <i class="fa-solid fa-heart" style="color: #ed4040; font-size: 24px;"></i>
+                {% else %}
+                  <i class="fa-regular fa-heart" style="font-size: 24px;"></i>
+                {% endif %}
+              </button>
+            </form>
+
+            <a href="{% url 'photos:share_photo' pk=photo.pk %}"><i class="fa-solid fa-share fa-2x" id="share-icon" style="cursor:pointer;"></i></a>
+
+          </div>
+        </div>
+        <!-- Like count -->
+        <p class="likes">{{ photo.likes.count }} like{{ photo.likes.count|pluralize }}</p>
+
+        <!-- Tagged Pets -->
+        {% for pet in photo.tagged_pet.all %}
+          <a href="{% url 'pets:pet_details' pk=pet.pk %}">
+            <p class="message"><b>{{ pet.name }}</b></p>
+          </a>
+        {% empty %}
+          <p class="message">No tagged pets.</p>
+        {% endfor %}
+
+        <!-- Description -->
+        <p class="pet-details">{{ photo.description }}</p>
+
+        <!-- Date -->
+        <h5 class="postTime">{{ photo.created_at|date:"d/m/Y" }}</h5>
+
+        <!-- Comments -->
+        {% if request.user.is_authenticated %}
+          <div class="addComments">
+            <form method="post">
+              {% csrf_token %}
+              <label class="comment-form" for="{{ form.content.id_for_label }}"></label>
+                {{ form.content }}
+              <button type="submit">Post</button>
+            </form>
+          </div>
+        {% endif %}
+
+        <div class="comments">
+          {% for comment in photo.comments.all %}
+            <div class="top">
+              <div class="userDetails">
+                <div class="comment-data">
+                  <div class="profilepic">
+                    <div class="profile_img">
+                      <div class="image">
+                        <img src="{{ comment.author.profile.profile_img.url }}" alt="{{ comment.author.username }}">
+                      </div>
+                    </div>
+                  </div>
+                  <p>
+                    <a href="{% url 'accounts:profile_details' pk=comment.author.profile.pk %}">
+                      {{ comment.author.get_full_name|default:comment.author.username }}
+                    </a>
+                    - {{ comment.content }}
+                  </p>
+                </div>
+                <span>{{ comment.created_at|date:"M. d, Y, H:i" }}</span>
+              </div>
+            </div>
+          {% empty %}
+            <p>No comments yet.</p>
+          {% endfor %}
+        </div>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'common/home-page.html' %}
+{% load static %}
+
+{% block title %}Pet - Add{% endblock %}
+
+{% block content %}
+<style>
+  .img_button {
+    display: inline-block;
+    background-color: #000000;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+
+  .form-field {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .form-label {
+    min-width: 120px;
+    font-weight: bold;
+  }
+
+  .form-field input[type="text"],
+  .form-field input[type="date"],
+  .form-field input[type="file"] {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .edit-photo label {
+    display: initial !important;
+    margin-top: 12px;
+    margin-right: 5px;
+    white-space: nowrap;
+    padding-right: 100px;
+}
+
+
+  input:required, select:required, textarea:required {
+    box-shadow: none;
+  }
+</style>
+
+<div class="edit-delete edit-photo">
+  <h2>Add Pet</h2>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-field">
+      <label class="form-label" for="{{ form.name.id_for_label }}">Pet name:</label>
+      {{ form.name }}
+    </div>
+
+    <div class="form-field">
+      <label class="form-label" for="{{ form.date_of_birth.id_for_label }}">Date of birth:</label>
+      {{ form.date_of_birth }}
+    </div>
+
+    <div class="form-field">
+      <label class="form-label" for="{{ form.pet_img.id_for_label }}">Upload Image:</label>
+      <label for="{{ form.pet_img.id_for_label }}" class="img_button">Upload Image</label>
+      {{ form.pet_img }}
+    </div>
+
+    <button class="add-btn" type="submit">Add Pet</button>
+  </form>
+</div>
+{% endblock %}
