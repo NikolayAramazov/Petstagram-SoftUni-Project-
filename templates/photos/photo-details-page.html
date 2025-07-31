@@ -96,7 +96,7 @@
         <!-- Comments -->
         {% if request.user.is_authenticated %}
           <div class="addComments">
-            <form method="post">
+            <form id="comment-form"  method="post">
               {% csrf_token %}
               <label class="comment-form" for="{{ form.content.id_for_label }}"></label>
                 {{ form.content }}
@@ -105,35 +105,47 @@
           </div>
         {% endif %}
 
-        <div class="comments">
+        <div class="comments" id="commentsContainer">
           {% for comment in photo.comments.all %}
-            <div class="top">
-              <div class="userDetails">
-                <div class="comment-data">
-                  <div class="profilepic">
-                    <div class="profile_img">
-                      <div class="image">
-                        <img src="{{ comment.author.profile.profile_img.url }}" alt="{{ comment.author.username }}">
-                      </div>
-                    </div>
-                  </div>
-                  <p>
-                    <a href="{% url 'accounts:profile_details' pk=comment.author.profile.pk %}">
-                      {{ comment.author.get_full_name|default:comment.author.username }}
-                    </a>
-                    - {{ comment.content }}
-                  </p>
-                </div>
-                <span>{{ comment.created_at|date:"M. d, Y, H:i" }}</span>
-              </div>
-            </div>
+            {% include 'photos/comment_partial.html' with comment=comment %}
           {% empty %}
             <p>No comments yet.</p>
           {% endfor %}
         </div>
+
     </div>
   </div>
 </div>
 </div>
+
+<script>
+
+    const form = document.getElementById('comment-form');
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+
+        fetch('{% url 'photos:photo_details' pk=photo.pk %}',{
+            method: 'post',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+
+            body: formData
+        })
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('commentsContainer').insertAdjacentHTML('afterbegin', html);
+            form.reset();
+        })
+        .catch(error => {
+            console.error('Error:', error)
+        })
+
+    })
+
+</script>
 
 {% endblock %}

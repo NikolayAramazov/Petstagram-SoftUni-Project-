@@ -1,10 +1,9 @@
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-
 from accounts.models import Message
 from photos.forms import PhotoForm, CommentForm, SharePhotoForm
 from photos.models import Photo, Like
-
 
 @login_required
 def like_toggle(request, pk):
@@ -32,16 +31,22 @@ def create_photo(request):
 def photo_details(request, pk):
     photo = get_object_or_404(Photo, pk=pk)
 
-    if request.method == 'POST':
+    # Handle AJAX POST request to add a comment
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         comment_form = CommentForm(request.POST)
         if comment_form.is_valid():
             comment = comment_form.save(commit=False)
             comment.photo = photo
             comment.author = request.user
             comment.save()
-            return redirect('photos:photo_details', pk=pk)
-    else:
-        comment_form = CommentForm()
+
+            # Return the rendered HTML of the new comment
+            return render(request, 'photos/comment_partial.html', {'comment': comment})
+        else:
+            return JsonResponse({'errors': comment_form.errors}, status=400)
+
+    # Normal GET request
+    comment_form = CommentForm()
 
     liked_by_user = False
     if request.user.is_authenticated:
