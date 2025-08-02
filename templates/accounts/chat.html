@@ -9,7 +9,7 @@
             font-family: -apple-system, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu,
             Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
             max-width: 600px;
-            margin: 30px auto;
+            margin: 90px auto;
             border: 2px solid black;
             border-radius: 10px;
             padding: 15px;
@@ -101,6 +101,7 @@
     </style>
 </head>
 <body>
+<div class="chat-box-container">
     <h2 class="chat-box-header">
 
     <a href="javascript:window.location.replace(document.referrer);"
@@ -123,30 +124,16 @@
 
 
     <div class="chat-box" id="chat-box">
-        {% for message in messages %}
-            <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
-                <div class="content">
-                    {% if message.content %}
-                        <p>{{ message.content|linebreaksbr }}</p>
-                    {% endif %}
-
-                    {% if message.photo %}
-                        <div style="margin-top: 10px;">
-                            <a href="{% url "photos:photo_details" pk=message.photo.id %}">
-                                <img src="{{ message.photo.photo.url }}" alt="Shared photo" style="width: 150px;height: 100px; border-radius: 10px;"/>
-                            </a>
-                        </div>
-                    {% endif %}
-
-                    <div class="timestamp">{{ message.timestamp|date:"M d, Y H:i" }}</div>
-                </div>
-            </div>
-        {% empty %}
-            <p>No messages yet.</p>
-        {% endfor %}
+        <div id="messageContainer" class="messages">
+            {% for message in messages %}
+                {% include 'accounts/messages_partial.html' with message=message %}
+            {% empty %}
+                <p>No messages yet.</p>
+            {% endfor %}
+        </div>
     </div>
 
-    <form method="post">
+    <form method="post" id="messageForm">
         {% csrf_token %}
         <div style="display: flex; align-items: center; gap: 10px;">
             {{ form.content }}
@@ -154,10 +141,39 @@
         </div>
     </form>
 
+</div>
     <script>
         // Scroll chat box to bottom on page load
         const chatBox = document.getElementById('chat-box');
         chatBox.scrollTop = chatBox.scrollHeight;
+
+        const form = document.getElementById('messageForm');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            fetch('{% url 'accounts:chat' username=other_user.username %}', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: formData,
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('messageContainer').insertAdjacentHTML('beforeend', html);
+                form.reset();
+                chatBox.scrollTop = chatBox.scrollHeight;
+            })
+            .catch(error => {
+                console.log(error);
+            })
+
+        })
+
     </script>
+
 </body>
 </html>

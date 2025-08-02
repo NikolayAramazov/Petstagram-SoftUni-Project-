@@ -1,0 +1,17 @@
+<div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
+    <div class="content">
+        {% if message.content %}
+            <p>{{ message.content|linebreaksbr }}</p>
+        {% endif %}
+
+        {% if message.photo %}
+            <div style="margin-top: 10px;">
+                <a href="{% url "photos:photo_details" pk=message.photo.id %}">
+                    <img src="{{ message.photo.photo.url }}" alt="Shared photo" style="width: 150px;height: 100px; border-radius: 10px;"/>
+                </a>
+            </div>
+        {% endif %}
+
+        <div class="timestamp">{{ message.timestamp|date:"M d, Y H:i" }}</div>
+    </div>
+</div>

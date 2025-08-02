@@ -45,35 +45,18 @@
 
 <main>
     {% if request.path == '/home/' %}
-        <div class="home-wrapper">
-    <div class="search_container">
-    <form method="get" class="searchbar" action="{% url 'accounts:home' %}" autocomplete="off">
-        {{ search_form }}
-        <button type="submit" class="searchbar_button">Search</button>
-    </form>
+    <div class="home-wrapper">
+        <div class="search_container">
+        <form id="searchForm" method="get" class="searchbar" action="{% url 'accounts:home' %}" autocomplete="off">
+            {{ search_form }}
+            <button type="submit" class="searchbar_button">Search</button>
+        </form>
 
-    {% if query and profiles %}
-        <ul class="profile-suggestions">
-            {% for profile in profiles %}
-                <li class="suggestion-item">
-                    <a href="{% url 'accounts:profile_details' pk=profile.pk %}">
-                        <div class="profile-preview">
-                            <div class="profile-username">
-                              <span class="username-text">{{ profile.user.username }}</span>
-                                {% if profile.profile_img.url %}
-                                    <img src="{{ profile.profile_img.url }}" alt="{{ profile.user.username }}" class="profile-thumb">
-                                {% else %}
-                                    <img src="/media/profile_images/user.png" alt="{{ profile.user.username }}" class="profile-thumb">
-                                {% endif %}
-                            </div>
-                        </div>
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% elif query and not profiles %}
-        <p>No users found for "{{ query }}"</p>
-    {% endif %}
+            <div class="profiles" id="profilesContainer">
+                {% include 'common/partial_profiles.html' %}
+            </div>
+
+        </div>
     </div>
     {% endif %}
 
@@ -220,6 +203,29 @@
       window.location.replace(url.toString());
     }
   });
+
+  const form = document.getElementById('searchForm');
+
+  form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+    const formData = new FormData(form);
+    const params = new URLSearchParams(formData).toString();
+
+      fetch(`{% url 'accounts:home' %}?${params}`, {
+          method: 'get',
+          headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+          },
+      })
+      .then(response => response.text())
+      .then(html => {
+          document.getElementById('profilesContainer').innerHTML = html;
+      })
+      .catch(error => {
+            console.error('Error:', error)
+        })
+  })
 </script>
 
 </body>

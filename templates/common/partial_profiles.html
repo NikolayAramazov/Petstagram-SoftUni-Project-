@@ -1,0 +1,22 @@
+{% if query and profiles %}
+<ul class="profile-suggestions">
+    {% for profile in profiles %}
+        <li class="suggestion-item">
+            <a href="{% url 'accounts:profile_details' pk=profile.pk %}">
+                <div class="profile-preview">
+                    <div class="profile-username">
+                        <span class="username-text">{{ profile.user.username }}</span>
+                        {% if profile.profile_img.url %}
+                            <img src="{{ profile.profile_img.url }}" alt="{{ profile.user.username }}" class="profile-thumb">
+                        {% else %}
+                            <img src="/media/profile_images/user.png" alt="{{ profile.user.username }}" class="profile-thumb">
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+{% elif query and not profiles %}
+<p>No users found for "{{ query }}"</p>
+{% endif %}

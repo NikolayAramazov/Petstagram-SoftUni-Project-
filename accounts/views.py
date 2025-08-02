@@ -2,7 +2,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.cache import never_cache
 
@@ -15,8 +15,16 @@ from photos.utils import is_liked_by_user
 
 @login_required
 def home(request):
-    form = SearchForm(request.GET or None)
     profiles = Profile.objects.none()
+    query = request.GET.get('query', '')
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        if query:
+            profiles = Profile.objects.filter(user__username__icontains=query)
+        else:
+            profiles = Profile.objects.none()
+        return render(request, 'common/partial_profiles.html', {'profiles': profiles, 'query': query})
+
 
     user_profile = request.user.profile
     followed_users = user_profile.following.all()
@@ -26,12 +34,6 @@ def home(request):
 
     for photo in photos:
         photo.liked_by_user = is_liked_by_user(photo, request.user)
-
-    query = None
-    if form.is_valid():
-        query = form.cleaned_data.get("query")
-        if query:
-            profiles = Profile.objects.filter(user__username__icontains=query)
 
     if request.method == 'POST':
         comment_form = CommentForm(request.POST)
@@ -49,7 +51,7 @@ def home(request):
     else:
         comment_form = CommentForm()
 
-    form = SearchForm()
+    form = SearchForm(request.GET)
 
 
     return render(request, 'common/home-page.html', {
@@ -151,18 +153,18 @@ def profile_delete(request, pk):
 def chat(request, username):
     other_user = get_object_or_404(User, username=username)
 
-    if request.method == "POST":
+    if request.method == "POST" and request.headers.get('X-requested-with') == 'XMLHttpRequest':
         form = MessageForm(request.POST)
         if form.is_valid():
             message = form.save(commit=False)
             message.sender = request.user
             message.recipient = other_user
             message.save()
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+            return render(request, 'accounts/messages_partial.html', {'message': message})
+        else:
+            return JsonResponse({'error': 'Invalid form'}, status=400)
 
-    else:
-        form = MessageForm()
-
+    form = MessageForm()
     messages = Message.objects.filter(
         sender__in=[request.user, other_user],
         recipient__in=[request.user, other_user]
