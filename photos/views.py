@@ -45,7 +45,6 @@ def photo_details(request, pk):
         else:
             return JsonResponse({'errors': comment_form.errors}, status=400)
 
-    # Normal GET request
     comment_form = CommentForm()
 
     liked_by_user = False
