@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <title>{% block title %}Petstagram{% endblock %}</title>
 </head>
-<body>
 
+<body>
 <header>
     <nav class="navbar">
         <div class="container">
@@ -21,173 +21,132 @@
             {% if user.is_authenticated %}
             <div class="nav-links">
                 <ul class="nav-group">
-                    <li class="nav-item">
-                        <a href="{% url 'pets:add_pet' %}"><i>Add Pet</i></a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'photos:create_photo' %}"><i>Add Photo</i></a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'accounts:profile_details' pk=request.user.profile.pk %}">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'accounts:sign_out' %}">
-                            <i>Log out</i>
-                        </a>
-                    </li>
-                {% endif %}
+                    <li class="nav-item"><a href="{% url 'pets:add_pet' %}"><i>Add Pet</i></a></li>
+                    <li class="nav-item"><a href="{% url 'photos:create_photo' %}"><i>Add Photo</i></a></li>
+                    <li class="nav-item"><a href="{% url 'accounts:profile_details' pk=request.user.profile.pk %}">Profile</a></li>
+                    <li class="nav-item"><a href="{% url 'accounts:sign_out' %}"><i>Log out</i></a></li>
                 </ul>
             </div>
+            {% endif %}
         </div>
     </nav>
 </header>
-
 
 <main>
     {% if request.path == '/home/' %}
     <div class="home-wrapper">
         <div class="search_container">
-        <form id="searchForm" method="get" class="searchbar" action="{% url 'accounts:home' %}" autocomplete="off">
-            {{ search_form }}
-            <button type="submit" class="searchbar_button">Search</button>
-        </form>
+            <form id="searchForm" method="get" class="searchbar" action="{% url 'accounts:home' %}" autocomplete="off">
+                {{ search_form }}
+                <button type="submit" class="searchbar_button">Search</button>
+            </form>
 
             <div class="profiles" id="profilesContainer">
                 {% include 'common/partial_profiles.html' %}
             </div>
-
         </div>
-    </div>
-    {% endif %}
 
-    {% if request.path == '/home/' %}
         {% for photo in photos %}
         <div class="pet-posts" id="pet-posts-container">
             <div class="card">
-      <div class="top">
-        <!-- User Details -->
-        <div class="userDetails">
-          <a href="{% url 'accounts:profile_details' pk=photo.owner.profile.pk %}">
-            <div class="profilepic">
-              <div class="profile_img">
-                <div class="image">
-                  <img src="{{ photo.owner.profile.profile_img.url }}" alt="{{ photo.owner.username }}">
-                </div>
-              </div>
-            </div>
-          </a>
-          <h3>
-            <a href="{% url 'accounts:profile_details' pk=photo.owner.profile.pk %}">
-              {{ photo.owner.get_full_name|default:photo.owner.username }}
-            </a>
-            {% if photo.location %}
-              <br><span>{{ photo.location }}</span>
-            {% endif %}
-            {% if request.user == photo.owner %}
-              <div class="edit-delete-btns">
-                <a href="{% url 'photos:edit_photo' pk=photo.pk %}">
-                  <img class="edit-img" src="{% static 'images/edit-pen-icon-6.jpg' %}" alt="edit">
-                </a>
-                <a href="{% url 'photos:delete_photo' pk=photo.pk %}">
-                  <img class="bin-img" src="{% static 'images/icon-remove-22.jpg' %}" alt="delete">
-                </a>
-              </div>
-            {% endif %}
-          </h3>
-        </div>
-      </div>
-
-      <!-- Pet Photo -->
-      <div class="imgBx" id="photo-{{ photo.id }}">
-          <a href="{% url 'photos:photo_details' pk=photo.pk %}">
-        <img src="{{ photo.photo.url }}" alt="post" class="cover">
-          </a>
-      </div>
-
-      <div class="bottom">
-        <!-- Like/Share icons -->
-        <div class="actionBtns">
-          <div class="left">
-            <form method="post" action="{% url 'photos:like_toggle' pk=photo.pk %}" style="display:inline;">
-              {% csrf_token %}
-              <button type="submit" style="background:none; border:none; cursor:pointer;">
-                {% if photo.liked_by_user %}
-                  <i class="fa-solid fa-heart" style="color: #ed4040; font-size: 24px;"></i>
-                {% else %}
-                  <i class="fa-regular fa-heart" style="font-size: 24px;"></i>
-                {% endif %}
-              </button>
-            </form>
-
-            <a href="{% url 'photos:share_photo' pk=photo.pk %}"><i class="fa-solid fa-share fa-2x" id="share-icon" style="cursor:pointer;"></i></a>
-          </div>
-        </div>
-        <!-- Like count -->
-        <p class="likes">{{ photo.likes.count }} like{{ photo.likes.count|pluralize }}</p>
-
-        <!-- Tagged Pets -->
-        {% for pet in photo.tagged_pet.all %}
-          <a href="{% url 'pets:pet_details' pk=pet.pk %}">
-            <p class="message"><b>{{ pet.name }}</b></p>
-          </a>
-        {% empty %}
-          <p class="message">No tagged pets.</p>
-        {% endfor %}
-
-        <!-- Description -->
-        <p class="pet-details">{{ photo.description }}</p>
-
-        <!-- Date -->
-        <h5 class="postTime">{{ photo.created_at|date:"d/m/Y" }}</h5>
-
-        <!-- Comments -->
-        {% if request.user.is_authenticated %}
-          <div class="addComments">
-            <form method="post">
-                  {% csrf_token %}
-                  <input type="hidden" name="photo_id" value="{{ photo.id }}">
-                  {{ comment_form.content }}
-                  <button type="submit">Post</button>
-            </form>
-          </div>
-        {% endif %}
-
-        <div class="comments">
-          {% for comment in photo.comments.all %}
-            <div class="top">
-              <div class="userDetails">
-                <div class="comment-data">
-                  <div class="profilepic">
-                    <div class="profile_img">
-                      <div class="image">
-                        <img src="{{ comment.author.profile.profile_img.url }}" alt="{{ comment.author.username }}">
-                      </div>
+                <div class="top">
+                    <div class="userDetails">
+                        <a href="{% url 'accounts:profile_details' pk=photo.owner.profile.pk %}">
+                            <div class="profilepic">
+                                <div class="profile_img">
+                                    <div class="image">
+                                        <img src="{{ photo.owner.profile.profile_img.url }}" alt="{{ photo.owner.username }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <h3>
+                            <a href="{% url 'accounts:profile_details' pk=photo.owner.profile.pk %}">
+                                {{ photo.owner.get_full_name|default:photo.owner.username }}
+                            </a>
+                            {% if photo.location %}
+                            <br><span>{{ photo.location }}</span>
+                            {% endif %}
+                            {% if request.user == photo.owner %}
+                            <div class="edit-delete-btns">
+                                <a href="{% url 'photos:edit_photo' pk=photo.pk %}">
+                                    <img class="edit-img" src="{% static 'images/edit-pen-icon-6.jpg' %}" alt="edit">
+                                </a>
+                                <a href="{% url 'photos:delete_photo' pk=photo.pk %}">
+                                    <img class="bin-img" src="{% static 'images/icon-remove-22.jpg' %}" alt="delete">
+                                </a>
+                            </div>
+                            {% endif %}
+                        </h3>
                     </div>
-                  </div>
-                  <p>
-                    <a href="{% url 'accounts:profile_details' pk=comment.author.profile.pk %}">
-                      {{ comment.author.get_full_name|default:comment.author.username }}
-                    </a>
-                    - {{ comment.content }}
-                  </p>
                 </div>
-                <span>{{ comment.created_at|date:"M. d, Y, H:i" }}</span>
-              </div>
+
+                <div class="imgBx" id="photo-{{ photo.id }}">
+                    <a href="{% url 'photos:photo_details' pk=photo.pk %}">
+                        <img src="{{ photo.photo.url }}" alt="post" class="cover">
+                    </a>
+                </div>
+
+                <div class="bottom">
+                    <div class="actionBtns">
+                        <div class="left">
+                            <form method="post" action="{% url 'photos:like_toggle' pk=photo.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="background:none; border:none; cursor:pointer;">
+                                    {% if photo.liked_by_user %}
+                                    <i class="fa-solid fa-heart" style="color: #ed4040; font-size: 24px;"></i>
+                                    {% else %}
+                                    <i class="fa-regular fa-heart" style="font-size: 24px;"></i>
+                                    {% endif %}
+                                </button>
+                            </form>
+                            <a href="{% url 'photos:share_photo' pk=photo.pk %}">
+                                <i class="fa-solid fa-share fa-2x" id="share-icon" style="cursor:pointer;"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <p class="likes">{{ photo.likes.count }} like{{ photo.likes.count|pluralize }}</p>
+
+                    {% for pet in photo.tagged_pet.all %}
+                    <a href="{% url 'pets:pet_details' pk=pet.pk %}">
+                        <p class="message"><b>{{ pet.name }}</b></p>
+                    </a>
+                    {% empty %}
+                    <p class="message">No tagged pets.</p>
+                    {% endfor %}
+
+                    <p class="pet-details">{{ photo.description }}</p>
+                    <h5 class="postTime">{{ photo.created_at|date:"d/m/Y" }}</h5>
+
+                    {% if request.user.is_authenticated %}
+                    <div class="addComments">
+                        <form class="comment-form" method="post" action="{% url 'photos:photo_details' pk=photo.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="photo_id" value="{{ photo.id }}">
+                            {{ comment_form.content }}
+                            <button type="submit">Post</button>
+                        </form>
+                    </div>
+                    {% endif %}
+
+                    <div class="comments" id="commentsContainer">
+                        {% for comment in photo.comments.all %}
+                        {% include 'photos/comment_partial.html' with comment=comment %}
+                        {% empty %}
+                        <p>No comments yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
-          {% empty %}
-            <p>No comments yet.</p>
-          {% endfor %}
         </div>
-    </div>
-  </div>
         {% endfor %}
-        </div>
+    </div>
     {% endif %}
 
     {% block content %}
     {% endblock %}
 </main>
-
 
 <div class="footer">
     <span class="footer-section">
@@ -196,37 +155,16 @@
 </div>
 
 <script>
-  window.addEventListener('pageshow', function(event) {
-    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-      const url = new URL(window.location.href);
-      url.search = "";
-      window.location.replace(url.toString());
-    }
-  });
-
-  const form = document.getElementById('searchForm');
-
-  form.addEventListener('submit', (e) => {
-      e.preventDefault();
-
-    const formData = new FormData(form);
-    const params = new URLSearchParams(formData).toString();
-
-      fetch(`{% url 'accounts:home' %}?${params}`, {
-          method: 'get',
-          headers: {
-              'X-Requested-With': 'XMLHttpRequest'
-          },
-      })
-      .then(response => response.text())
-      .then(html => {
-          document.getElementById('profilesContainer').innerHTML = html;
-      })
-      .catch(error => {
-            console.error('Error:', error)
-        })
-  })
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+            const url = new URL(window.location.href);
+            url.search = "";
+            window.location.replace(url.toString());
+        }
+    });
 </script>
+
+<script src="{% static 'js/search_form.js' %}"></script>
 
 </body>
 </html>
