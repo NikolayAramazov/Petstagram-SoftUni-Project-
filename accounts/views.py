@@ -18,27 +18,16 @@ def home(request):
     profiles = Profile.objects.none()
     query = request.GET.get('query', '')
 
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+    if request.method == 'GET' and  request.headers.get('x-requested-with') == 'XMLHttpRequest':
         if query:
             profiles = Profile.objects.filter(user__username__icontains=query)
         else:
             profiles = Profile.objects.none()
         return render(request, 'common/partial_profiles.html', {'profiles': profiles, 'query': query})
 
-
-    user_profile = request.user.profile
-    followed_users = user_profile.following.all()
-    followed_user_ids = followed_users.values_list('user__id', flat=True)
-
-    photos = Photo.objects.filter(owner__id__in=followed_user_ids).order_by('-id')
-
-    for photo in photos:
-        photo.liked_by_user = is_liked_by_user(photo, request.user)
-
-    if request.method == 'POST':
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         comment_form = CommentForm(request.POST)
         if comment_form.is_valid():
-            # You need to know which photo is being commented on
             photo_id = request.POST.get('photo_id')
             photo = Photo.objects.get(pk=photo_id)
 
@@ -47,10 +36,21 @@ def home(request):
             comment.author = request.user
             comment.save()
 
-            return redirect('accounts:home')  # Redirect to avoid repost on refresh
-    else:
-        comment_form = CommentForm()
+            return render(request, 'photos/comment_partial.html', {'comment': comment})
+        else:
+            return JsonResponse({'errors': comment_form.errors}, status=400)
 
+
+    user_profile = request.user.profile
+    followed_users = user_profile.following.all()
+    followed_user_ids = followed_users.values_list('user__id', flat=True)
+    photos = Photo.objects.filter(owner__id__in=followed_user_ids).order_by('-id')
+
+    for photo in photos:
+        photo.liked_by_user = is_liked_by_user(photo, request.user)
+
+
+    comment_form = CommentForm()
     form = SearchForm(request.GET)
 
 

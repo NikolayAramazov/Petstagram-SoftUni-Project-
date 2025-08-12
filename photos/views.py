@@ -31,7 +31,6 @@ def create_photo(request):
 def photo_details(request, pk):
     photo = get_object_or_404(Photo, pk=pk)
 
-    # Handle AJAX POST request to add a comment
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         comment_form = CommentForm(request.POST)
         if comment_form.is_valid():
@@ -40,7 +39,6 @@ def photo_details(request, pk):
             comment.author = request.user
             comment.save()
 
-            # Return the rendered HTML of the new comment
             return render(request, 'photos/comment_partial.html', {'comment': comment})
         else:
             return JsonResponse({'errors': comment_form.errors}, status=400)
