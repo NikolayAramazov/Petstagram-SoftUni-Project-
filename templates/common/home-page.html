@@ -90,7 +90,7 @@
                 <div class="bottom">
                     <div class="actionBtns">
                         <div class="left">
-                            <form method="post" action="{% url 'photos:like_toggle' pk=photo.pk %}" style="display:inline;">
+                            <form class="like_form" method="post" action="{% url 'photos:like_toggle' pk=photo.pk %}" style="display:inline;">
                                 {% csrf_token %}
                                 <button type="submit" style="background:none; border:none; cursor:pointer;">
                                     {% if photo.liked_by_user %}
@@ -165,7 +165,7 @@
 </script>
 
 <script src="{% static 'js/search_form.js' %}"></script>
-
+<script src="{% static 'js/like_form.js' %}"></script>
 <script src="{% static 'js/comment_form.js' %}"></script>
 
 </body>

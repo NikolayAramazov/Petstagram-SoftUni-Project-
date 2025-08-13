@@ -7,12 +7,21 @@ from photos.models import Photo, Like
 
 @login_required
 def like_toggle(request, pk):
-    photo = get_object_or_404(Photo, pk=pk)
-    like, created = Like.objects.get_or_create(user=request.user, photo=photo)
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        photo = Photo.objects.get(pk=pk)
+        user = request.user
 
-    if not created:
-        like.delete()
-    return redirect(request.META.get('HTTP_REFERER', '/'))
+        existing_like = Like.objects.filter(photo=photo, user=user).first()
+        if existing_like:
+            existing_like.delete()
+            liked = False
+        else:
+            Like.objects.create(photo=photo, user=user)
+            liked = True
+
+        return JsonResponse({'liked': liked, 'likes_count': photo.likes.count()})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
 
 def create_photo(request):
     if request.method == 'POST':

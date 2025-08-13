@@ -60,7 +60,7 @@
         <!-- Like/Share icons -->
         <div class="actionBtns">
           <div class="left">
-            <form method="post" action="{% url 'photos:like_toggle' pk=photo.pk %}" style="display:inline;">
+            <form class="like_form" method="post" action="{% url 'photos:like_toggle' pk=photo.pk %}" style="display:inline;">
               {% csrf_token %}
               <button type="submit" style="background:none; border:none; cursor:pointer;">
                 {% if liked_by_user %}
